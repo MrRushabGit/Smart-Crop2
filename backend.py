@@ -9,7 +9,7 @@ data = pd.get_dummies(data)
 dt = DecisionTreeClassifier()
 
 x =data.drop('Crop_Type',axis=1)
-y = data['Crop_Type']
+y = data['Crop_Type']   
 
 print(data.isnull().sum())
 
