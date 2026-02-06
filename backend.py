@@ -18,13 +18,11 @@ X = pd.get_dummies(X, drop_first=True)
 print("Missing values per column (features + target):")
 print(pd.concat([X, y], axis=1).isnull().sum())
 
-
 x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
 
 dt = DecisionTreeClassifier(random_state=42)
 
 param_grid = {"max_depth": [3, 5, 7, 10, None], "min_samples_split": [2, 5, 10]}
-
 
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 grid = GridSearchCV(dt, param_grid, cv=cv, n_jobs=-1, verbose=1)
@@ -40,7 +38,6 @@ print(f"Accuracy:  {cv_results['test_accuracy'].mean():.4f} ± {cv_results['test
 print(f"Precision: {cv_results['test_precision_weighted'].mean():.4f} ± {cv_results['test_precision_weighted'].std():.4f}")
 print(f"Recall:    {cv_results['test_recall_weighted'].mean():.4f} ± {cv_results['test_recall_weighted'].std():.4f}")
 print(f"F1-score:  {cv_results['test_f1_weighted'].mean():.4f} ± {cv_results['test_f1_weighted'].std():.4f}")
-
 
 y_pred = best_model.predict(x_test)
 
