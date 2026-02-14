@@ -32,7 +32,6 @@ best_model = grid.best_estimator_
 print("\nBEST PARAMETERS:", grid.best_params_)
 
 cv_results = cross_validate(best_model, X, y, cv=cv,scoring=['accuracy','precision_weighted','recall_weighted','f1_weighted'],n_jobs=-1)
-
 print("\nCross-validation (5-fold) results (mean ± std):")
 print(f"Accuracy:  {cv_results['test_accuracy'].mean():.4f} ± {cv_results['test_accuracy'].std():.4f}")
 print(f"Precision: {cv_results['test_precision_weighted'].mean():.4f} ± {cv_results['test_precision_weighted'].std():.4f}")
