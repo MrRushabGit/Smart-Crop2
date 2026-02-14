@@ -4,7 +4,6 @@ A Machine Learning–based system that assists farmers in selecting the most sui
 
 The project leverages data preprocessing techniques and a Decision Tree model with hyperparameter tuning to provide accurate crop recommendations.
 
----
 
 ## 📌 Project Overview
 
@@ -18,7 +17,6 @@ The system is designed to be:
 - Scalable  
 - Easy to integrate with backend systems  
 
----
 
 ## 🚀 Features
 
@@ -29,7 +27,6 @@ The system is designed to be:
 - ⚙️ Simple and scalable backend structure  
 - 🔗 Version controlled using Git & GitHub  
 
----
 
 ## 🛠 Tech Stack
 
@@ -38,8 +35,6 @@ The system is designed to be:
 - Scikit-learn  
 - NumPy  
 - Git & GitHub  
-
----
 
 ## 📂 Project Structure
 Smart-Crop2-Advisory/
@@ -69,8 +64,6 @@ Smart-Crop2-Advisory/
 ├── requirements.txt         # Python dependencies
 └── README.md                # Project documentation
 
----
-
 ## 📈 Machine Learning Approach
 
 1. Data Cleaning & Preprocessing  
@@ -80,16 +73,12 @@ Smart-Crop2-Advisory/
 5. Hyperparameter Tuning  
 6. Model Evaluation (Accuracy, Precision, Recall)  
 
----
-
 ## 💡 Future Improvements
 
 - Deploy as a web application  
 - Integrate real-time weather API  
 - Use advanced models (Random Forest, XGBoost)  
 - Add soil nutrient deficiency suggestions  
-
----
 
 ## 👨‍💻 Authors
 
