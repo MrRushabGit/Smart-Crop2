@@ -53,7 +53,6 @@ npm run build
 ```
 
 The production build will be in the `dist` directory.
-
 ### Deploy to Production
 
 **Quick Deploy (Recommended):**
@@ -142,4 +141,3 @@ The codebase is structured to easily integrate with a backend API:
 ## License
 
 This project is part of the Smart Crop Advisory system.
-
