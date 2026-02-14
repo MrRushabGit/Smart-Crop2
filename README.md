@@ -37,6 +37,8 @@ The system is designed to be:
 - Git & GitHub  
 
 ## 📂 Project Structure
+
+```
 Smart-Crop2-Advisory/
 
 ├── frontend/
@@ -51,18 +53,20 @@ Smart-Crop2-Advisory/
 │   │   │   └── InsightsPage.jsx
 │   │   ├── data/            # Mock/static data
 │   │   │   └── mockData.js
-│   │   ├── App.jsx          # Main application component (Routing)
-│   │   ├── main.jsx         # Application entry point
-│   │   └── index.css        # Global styling (Tailwind)
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── index.css
 │   ├── index.html
 │   ├── package.json
 │   ├── vite.config.js
 │   └── tailwind.config.js
 │
-├── backend.py               # Backend API for prediction
-├── model_training.py        # ML model training script
-├── requirements.txt         # Python dependencies
-└── README.md                # Project documentation
+├── backend.py
+├── model_training.py
+├── requirements.txt
+└── README.md
+```
+
 
 ## 📈 Machine Learning Approach
 
