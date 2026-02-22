@@ -25,7 +25,6 @@ export const locationSuggestions = [
   'Andhra Pradesh, India',
   'Madhya Pradesh, India'
 ]
-
 // Mock disease data
 export const diseases = {
   Wheat: [
