@@ -1,3 +1,5 @@
+
+
 {
   "name": "crop-advisory-frontend",
   "private": true,
@@ -26,4 +28,3 @@
     "vite": "^5.0.8"
   }
 }
-
