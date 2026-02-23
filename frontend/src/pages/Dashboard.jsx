@@ -1,16 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { MapPin, Sprout, Upload, Search, Loader2 } from 'lucide-react'
+import { MapPin, Sprout, Search, Loader2 } from 'lucide-react'
 import { cropTypes, locationSuggestions, generateMockResults } from '../data/mockData'
 
 const Dashboard = () => {
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     location: '',
-    cropType: '',
-    image: null,
-    imagePreview: null
+    cropType: ''
   })
   const [locationSuggestionsVisible, setLocationSuggestionsVisible] = useState(false)
   const [filteredSuggestions, setFilteredSuggestions] = useState(locationSuggestions)
@@ -36,38 +34,6 @@ const Dashboard = () => {
     setLocationSuggestionsVisible(false)
   }
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      // Validate file size (10MB max)
-      if (file.size > 10 * 1024 * 1024) {
-        alert('Image size should be less than 10MB')
-        return
-      }
-      
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please upload a valid image file')
-        return
-      }
-      
-      // Create preview
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setFormData({ 
-          ...formData, 
-          image: file,
-          imagePreview: reader.result 
-        })
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const removeImage = () => {
-    setFormData({ ...formData, image: null, imagePreview: null })
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -78,25 +44,13 @@ const Dashboard = () => {
 
     setIsAnalyzing(true)
 
-    // Convert image to base64 if present
-    let imageData = null
-    if (formData.imagePreview) {
-      imageData = formData.imagePreview
-    }
-
-    // Simulate analysis delay (longer if image is present for more "thorough" analysis)
-    const analysisTime = imageData ? 3500 : 2500
-    
+    // Simulate analysis delay
     setTimeout(() => {
-      const results = generateMockResults(
-        formData.cropType, 
-        formData.location, 
-        imageData
-      )
+      const results = generateMockResults(formData.cropType, formData.location)
       localStorage.setItem('analysisResults', JSON.stringify(results))
       setIsAnalyzing(false)
       navigate('/results')
-    }, analysisTime)
+    }, 2500)
   }
 
   return (
@@ -187,72 +141,6 @@ const Dashboard = () => {
               </select>
             </div>
 
-            {/* Image Upload */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center space-x-2">
-                <Upload className="w-5 h-5 text-agri-green-600" />
-                <span>Field/Crop Image</span>
-                <span className="text-xs text-gray-500 font-normal">(Recommended for accurate analysis)</span>
-              </label>
-              
-              {formData.imagePreview ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="relative border-2 border-agri-green-300 rounded-lg overflow-hidden bg-gray-50"
-                >
-                  <img
-                    src={formData.imagePreview}
-                    alt="Crop preview"
-                    className="w-full h-64 object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={removeImage}
-                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors shadow-lg"
-                  >
-                    <span className="text-sm font-bold">×</span>
-                  </button>
-                  <div className="p-4 bg-white">
-                    <p className="text-sm text-agri-green-600 font-medium">
-                      ✓ Image uploaded: {formData.image.name}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      This will improve analysis accuracy
-                    </p>
-                  </div>
-                </motion.div>
-              ) : (
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-agri-green-400 transition-colors">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label
-                    htmlFor="image-upload"
-                    className="cursor-pointer flex flex-col items-center space-y-3"
-                  >
-                    <Upload className="w-12 h-12 text-gray-400" />
-                    <div>
-                      <span className="text-agri-green-600 font-medium">
-                        Click to upload field image
-                      </span>
-                      <span className="text-gray-500"> or drag and drop</span>
-                    </div>
-                    <p className="text-sm text-gray-500">
-                      PNG, JPG, GIF up to 10MB
-                    </p>
-                    <p className="text-xs text-agri-green-600 mt-2 bg-agri-green-50 px-3 py-1 rounded">
-                      📸 Upload image for more accurate disease detection
-                    </p>
-                  </label>
-                </div>
-              )}
-            </div>
-
             {/* Submit Button */}
             <motion.button
               type="submit"
@@ -298,32 +186,22 @@ const Dashboard = () => {
                 Analyzing Your Crop
               </h3>
               <p className="text-gray-600">
-                {formData.imagePreview 
-                  ? 'Processing field image and analyzing crop data...' 
-                  : 'Processing field data...'}
+                Processing field data...
               </p>
               <div className="mt-6 space-y-2">
-                {formData.imagePreview ? [
-                  'Extracting image features...',
-                  'Analyzing leaf patterns...',
-                  'Detecting disease symptoms...',
-                  'Calculating health metrics...',
-                  'Generating recommendations...'
-                ] : [
-                  'Scanning crop data...',
-                  'Analyzing soil conditions...',
-                  'Detecting diseases...'
-                ].map((step, index) => (
-                  <motion.div
-                    key={step}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.4 }}
-                    className="text-sm text-gray-500"
-                  >
-                    {step}
-                  </motion.div>
-                ))}
+                {['Scanning crop data...', 'Analyzing soil conditions...', 'Detecting diseases...'].map(
+                  (step, index) => (
+                    <motion.div
+                      key={step}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.4 }}
+                      className="text-sm text-gray-500"
+                    >
+                      {step}
+                    </motion.div>
+                  )
+                )}
               </div>
             </motion.div>
           </motion.div>

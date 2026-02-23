@@ -87,7 +87,7 @@ const AuthPage = ({ onLogin }) => {
                 </h2>
                 <p className="text-gray-600">
                   {isLogin 
-                    ? 'Sign in to access your crop advisory dashboard'
+                    ? 'Sign in to access your AgriNova dashboard'
                     : 'Start your journey to better crop management'
                   }
                 </p>

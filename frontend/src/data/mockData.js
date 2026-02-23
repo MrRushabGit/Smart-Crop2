@@ -81,68 +81,39 @@ export const diseases = {
 }
 
 // Generate mock analysis results
-export const generateMockResults = (cropType, location, imageData = null) => {
+export const generateMockResults = (cropType, location) => {
   const cropDiseases = diseases[cropType] || []
-  const primaryDisease = cropDiseases[0] || { name: 'Healthy Crop', severity: 'None', probability: 0.05 }
-  
-  // If image is provided, improve accuracy and adjust probabilities
-  let adjustedDisease = { ...primaryDisease }
-  let hasImage = imageData !== null
-  
-  if (hasImage) {
-    // Image-based analysis provides more accurate detection
-    // Simulate that image analysis can detect diseases more precisely
-    // Increase probability slightly (as if image confirms the disease)
-    adjustedDisease.probability = Math.min(0.95, primaryDisease.probability + 0.10)
-    
-    // Sometimes image might reveal a different primary disease (more accurate)
-    // 30% chance of detecting a different disease when image is analyzed
-    if (Math.random() > 0.7 && cropDiseases.length > 1) {
-      const imageDetectedDisease = cropDiseases[Math.floor(Math.random() * cropDiseases.length)]
-      adjustedDisease = { ...imageDetectedDisease }
-      adjustedDisease.probability = Math.min(0.95, imageDetectedDisease.probability + 0.15)
-    }
-  }
-  
+  const primaryDisease =
+    cropDiseases[0] || { name: 'Healthy Crop', severity: 'None', probability: 0.05 }
+
   // Calculate health score (inverse of disease probability)
-  const healthScore = Math.round((1 - adjustedDisease.probability) * 100)
-  
-  // Generate symptoms based on disease (more detailed if image provided)
-  const symptoms = generateSymptoms(adjustedDisease.name, cropType, hasImage)
-  
-  // Generate recommendations (more specific if image provided)
-  const recommendations = generateRecommendations(adjustedDisease.name, adjustedDisease.severity, cropType, hasImage)
-  
-  // Image-based visual analysis results
-  const imageAnalysis = hasImage ? {
-    leafColorAnalysis: 'Detected variations in chlorophyll content',
-    lesionDetection: adjustedDisease.name !== 'Healthy Crop' ? 'Identified characteristic lesion patterns' : 'No lesions detected',
-    growthStage: 'Analyzed crop growth stage from image',
-    coverageAnalysis: 'Estimated crop coverage and density',
-    accuracyBoost: 'Image analysis improved detection accuracy by ~15%'
-  } : null
-  
+  const healthScore = Math.round((1 - primaryDisease.probability) * 100)
+
+  // Generate symptoms based on disease
+  const symptoms = generateSymptoms(primaryDisease.name, cropType)
+
+  // Generate recommendations
+  const recommendations = generateRecommendations(
+    primaryDisease.name,
+    primaryDisease.severity,
+    cropType
+  )
+
   return {
     cropType,
     location,
-    disease: adjustedDisease.name,
+    disease: primaryDisease.name,
     healthScore,
-    severity: adjustedDisease.severity,
-    probability: adjustedDisease.probability,
+    severity: primaryDisease.severity,
+    probability: primaryDisease.probability,
     symptoms,
     recommendations,
     detectedDiseases: cropDiseases.slice(0, 3),
-    timestamp: new Date().toISOString(),
-    imageData: imageData,
-    hasImage: hasImage,
-    imageAnalysis: imageAnalysis,
-    accuracyNote: hasImage 
-      ? 'Analysis enhanced with field image - results are more accurate'
-      : 'For more accurate results, upload a field image next time'
+    timestamp: new Date().toISOString()
   }
 }
 
-const generateSymptoms = (diseaseName, cropType, hasImage = false) => {
+const generateSymptoms = (diseaseName, cropType) => {
   const baseSymptoms = {
     'Rust': ['Yellow-orange pustules on leaves', 'Premature leaf drop', 'Reduced grain quality'],
     'Powdery Mildew': ['White powdery spots on leaves', 'Leaf curling', 'Stunted growth'],
@@ -157,33 +128,25 @@ const generateSymptoms = (diseaseName, cropType, hasImage = false) => {
     'Bacterial Spot': ['Small dark spots', 'Leaf drop', 'Fruit blemishes'],
     'Healthy Crop': ['No visible symptoms', 'Normal growth pattern', 'Optimal leaf color']
   }
-  
-  let symptoms = baseSymptoms[diseaseName] || ['Monitoring recommended', 'Regular field inspection', 'Maintain optimal conditions']
-  
-  // Add image-based specific symptoms if image was provided
-  if (hasImage && diseaseName !== 'Healthy Crop') {
-    symptoms = [
-      ...symptoms,
-      'Image analysis confirmed visual disease markers',
-      'Pattern recognition matched known disease characteristics'
+
+  const symptoms =
+    baseSymptoms[diseaseName] || [
+      'Monitoring recommended',
+      'Regular field inspection',
+      'Maintain optimal conditions'
     ]
-  }
-  
+
   return symptoms
 }
 
-const generateRecommendations = (diseaseName, severity, cropType, hasImage = false) => {
+const generateRecommendations = (diseaseName, severity, cropType) => {
   if (diseaseName === 'Healthy Crop') {
-    const base = [
+    return [
       'Continue current farming practices',
       'Monitor crop regularly for early signs',
       'Maintain optimal irrigation and nutrition',
       'Follow preventive measures'
     ]
-    if (hasImage) {
-      base.push('Image confirms healthy crop status - maintain current practices')
-    }
-    return base
   }
   
   const recommendations = []

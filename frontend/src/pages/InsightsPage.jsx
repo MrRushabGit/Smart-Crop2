@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
-import { Database, BarChart3, TrendingUp, Info } from 'lucide-react'
+import { Database, BarChart3, TrendingUp, Info, Download } from 'lucide-react'
 import { datasetInfo } from '../data/mockData'
+import { downloadDatasetInfo, downloadDatasetInfoCSV } from '../utils/download'
 import {
   BarChart,
   Bar,
@@ -64,7 +65,7 @@ const InsightsPage = () => {
             Dataset & Feature Insights
           </h1>
           <p className="text-xl text-gray-600">
-            Understanding the data powering our crop advisory system
+            Understanding the data powering AgriNova
           </p>
         </motion.div>
 
@@ -75,9 +76,27 @@ const InsightsPage = () => {
           transition={{ delay: 0.1 }}
           className="glass rounded-2xl shadow-lg p-8 mb-8"
         >
-          <div className="flex items-center space-x-3 mb-6">
-            <Database className="w-8 h-8 text-agri-green-600" />
-            <h2 className="text-2xl font-bold text-gray-900">Dataset Overview</h2>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <Database className="w-8 h-8 text-agri-green-600" />
+              <h2 className="text-2xl font-bold text-gray-900">Dataset Overview</h2>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => downloadDatasetInfo(datasetInfo)}
+                className="flex items-center space-x-2 px-4 py-2 bg-agri-green-600 text-white rounded-lg hover:bg-agri-green-700 transition-colors text-sm font-medium"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">Download JSON</span>
+              </button>
+              <button
+                onClick={() => downloadDatasetInfoCSV(datasetInfo)}
+                className="flex items-center space-x-2 px-4 py-2 bg-white text-agri-green-600 border border-agri-green-600 rounded-lg hover:bg-agri-green-50 transition-colors text-sm font-medium"
+              >
+                <Download className="w-4 h-4" />
+                <span className="hidden sm:inline">Download CSV</span>
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-agri-green-50 rounded-lg p-6">

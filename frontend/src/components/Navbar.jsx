@@ -21,7 +21,7 @@ const Navbar = ({ user, onLogout }) => {
         <div className="flex justify-between items-center h-16">
           <Link to="/dashboard" className="flex items-center space-x-2 group">
             <Sprout className="w-6 h-6 text-agri-green-600 group-hover:text-agri-green-700 transition-colors" />
-            <span className="text-xl font-semibold text-gray-800">Crop Advisory</span>
+            <span className="text-xl font-semibold text-gray-800">AgriNova</span>
           </Link>
 
           <div className="flex items-center space-x-1">

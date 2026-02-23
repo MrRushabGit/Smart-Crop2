@@ -76,9 +76,9 @@ const LandingPage = () => {
               transition={{ delay: 0.3, duration: 0.6 }}
               className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6"
             >
-              Smart Crop Advisory
+              AgriNova
               <br />
-              <span className="text-agri-green-600">for Better Yield</span>
+              <span className="text-agri-green-600">Smart Crop Advisory for Better Yield</span>
             </motion.h1>
 
             <motion.p
@@ -165,7 +165,7 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="bg-agri-brown-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600">
-          <p>&copy; 2024 Smart Crop Advisory. Empowering farmers with AI.</p>
+          <p>&copy; 2024 AgriNova. Empowering farmers with AI.</p>
         </div>
       </footer>
     </div>

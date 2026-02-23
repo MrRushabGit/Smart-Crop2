@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { 
-  Sprout, 
-  AlertCircle, 
-  CheckCircle, 
+import {
+  Sprout,
+  AlertCircle,
+  CheckCircle,
   TrendingUp,
   MapPin,
   Calendar,
   ArrowRight,
-  Image as ImageIcon,
-  Zap
+  Download
 } from 'lucide-react'
+import { downloadAnalysisResults, downloadAnalysisResultsCSV } from '../utils/download'
 
 const ResultsPage = () => {
   const navigate = useNavigate()
@@ -130,36 +130,22 @@ const ResultsPage = () => {
 
               {/* Disease Detection */}
               <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-                    {results.disease === 'Healthy Crop' ? (
-                      <CheckCircle className="w-5 h-5 text-green-600" />
-                    ) : (
-                      <AlertCircle className="w-5 h-5 text-red-600" />
-                    )}
-                    <span>Detected Condition</span>
-                  </h3>
-                  {results.hasImage && (
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-medium">
-                      Image-Enhanced
-                    </span>
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                  {results.disease === 'Healthy Crop' ? (
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-red-600" />
                   )}
-                </div>
+                  <span>Detected Condition</span>
+                </h3>
                 <div className="bg-gray-50 rounded-lg p-4">
                   <p className="text-xl font-semibold text-gray-900 mb-1">
                     {results.disease}
                   </p>
                   {results.disease !== 'Healthy Crop' && (
-                    <div className="flex items-center space-x-2">
-                      <p className="text-sm text-gray-600">
-                        Detection Probability: {Math.round(results.probability * 100)}%
-                      </p>
-                      {results.hasImage && (
-                        <span className="text-xs text-green-600 font-medium">
-                          (Higher accuracy with image)
-                        </span>
-                      )}
-                    </div>
+                    <p className="text-sm text-gray-600">
+                      Detection Probability: {Math.round(results.probability * 100)}%
+                    </p>
                   )}
                 </div>
               </div>
@@ -183,94 +169,6 @@ const ResultsPage = () => {
                 </ul>
               </div>
             </div>
-
-            {/* Uploaded Image Display */}
-            {results.hasImage && results.imageData && (
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
-                className="glass rounded-2xl shadow-lg p-8"
-              >
-                <div className="flex items-center space-x-2 mb-4">
-                  <ImageIcon className="w-6 h-6 text-agri-green-600" />
-                  <h3 className="text-xl font-bold text-gray-900">Field Image Analysis</h3>
-                  <span className="ml-auto px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold flex items-center space-x-1">
-                    <Zap className="w-3 h-3" />
-                    <span>Enhanced Accuracy</span>
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="relative rounded-lg overflow-hidden border-2 border-agri-green-200">
-                    <img
-                      src={results.imageData}
-                      alt="Field image"
-                      className="w-full h-64 object-cover"
-                    />
-                    <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-                      Your Field Image
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="bg-agri-green-50 rounded-lg p-4">
-                      <p className="text-sm font-semibold text-agri-green-700 mb-2">
-                        Image-Based Analysis Results
-                      </p>
-                      {results.imageAnalysis && (
-                        <ul className="space-y-2 text-sm text-gray-700">
-                          <li className="flex items-start space-x-2">
-                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                            <span>{results.imageAnalysis.leafColorAnalysis}</span>
-                          </li>
-                          <li className="flex items-start space-x-2">
-                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                            <span>{results.imageAnalysis.lesionDetection}</span>
-                          </li>
-                          <li className="flex items-start space-x-2">
-                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                            <span>{results.imageAnalysis.growthStage}</span>
-                          </li>
-                          <li className="flex items-start space-x-2">
-                            <CheckCircle className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                            <span>{results.imageAnalysis.coverageAnalysis}</span>
-                          </li>
-                        </ul>
-                      )}
-                    </div>
-                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                      <p className="text-sm font-semibold text-blue-700 mb-1">
-                        Accuracy Improvement
-                      </p>
-                      <p className="text-xs text-blue-600">
-                        {results.imageAnalysis?.accuracyBoost || 'Image analysis improved detection accuracy'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Accuracy Note */}
-            {!results.hasImage && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
-                className="glass rounded-2xl shadow-lg p-6 border-2 border-yellow-200 bg-yellow-50"
-              >
-                <div className="flex items-start space-x-3">
-                  <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="font-semibold text-yellow-800 mb-1">
-                      Improve Analysis Accuracy
-                    </p>
-                    <p className="text-sm text-yellow-700">
-                      {results.accuracyNote || 'Upload a field image for more accurate disease detection and recommendations.'}
-                    </p>
-                  </div>
-                </div>
-              </motion.div>
-            )}
 
             {/* Recommendations Card */}
             <motion.div
@@ -348,6 +246,31 @@ const ResultsPage = () => {
               className="glass rounded-2xl shadow-lg p-6"
             >
               <h3 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
+              
+              {/* Download Analysis Buttons */}
+              <div className="mb-4 p-4 bg-agri-green-50 rounded-lg border border-agri-green-200">
+                <p className="text-sm font-semibold text-gray-900 mb-3 flex items-center space-x-2">
+                  <Download className="w-4 h-4 text-agri-green-600" />
+                  <span>Download Analysis</span>
+                </p>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => downloadAnalysisResults(results)}
+                    className="w-full bg-agri-green-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-agri-green-700 transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download JSON</span>
+                  </button>
+                  <button
+                    onClick={() => downloadAnalysisResultsCSV(results)}
+                    className="w-full bg-white text-agri-green-600 border border-agri-green-600 py-2 px-4 rounded-lg text-sm font-medium hover:bg-agri-green-50 transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <Download className="w-4 h-4" />
+                    <span>Download CSV</span>
+                  </button>
+                </div>
+              </div>
+
               <button
                 onClick={() => navigate('/insights')}
                 className="w-full bg-agri-green-600 text-white py-3 rounded-lg font-semibold hover:bg-agri-green-700 transition-colors mb-3"
