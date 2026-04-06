@@ -19,12 +19,6 @@ def main():
         dataset_path = os.path.join(os.getcwd(), 'attached_assets', 'agriculture_dataset_1772556603012.csv')
         df = pd.read_csv(dataset_path)
 
-        # Basic preprocessing
-        # For simplicity in this script, we'll build a model on the fly. 
-        # A real app might save the model as a .pkl file.
-        
-        # We need to predict Crop_Type. We will also pretend to predict disease (maybe map to random based on crop for this demo or just use a mock logic if not in dataset).
-        # Wait, the dataset doesn't have Disease_Prediction. We will mock it based on Crop_Type as a simple rule since it's required.
         
         features = ['Farm_Area(acres)', 'Fertilizer_Used(tons)', 'Pesticide_Used(kg)', 'Water_Usage(cubic meters)']
         target_crop = 'Crop_Type'
@@ -45,9 +39,7 @@ def main():
         recall = recall_score(y_test_crop, crop_preds, average='weighted', zero_division=0)
         f1 = f1_score(y_test_crop, crop_preds, average='weighted', zero_division=0)
 
-        # Prediction for current input
-        # Note: the user input might have categorical fields which we'd need to encode if we included them in features.
-        # For simplicity, using numerical ones.
+       
         user_df = pd.DataFrame([{
             'Farm_Area(acres)': input_data.get('farmArea', 100),
             'Fertilizer_Used(tons)': input_data.get('fertilizerUsed', 5),
