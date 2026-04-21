@@ -1,5 +1,5 @@
 {
-  "include": ["client/src/**/*", "shared/**/*"],
+  "include": ["src/**/*", "../shared/**/*"],
   "exclude": ["node_modules", "dist"],
   "compilerOptions": {
     "module": "ESNext",
@@ -12,8 +12,8 @@
     "baseUrl": ".",
     "types": ["vite/client"],
     "paths": {
-      "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"]
+      "@/*": ["./src/*"],
+      "@shared/*": ["../shared/*"]
     }
   }
 }
