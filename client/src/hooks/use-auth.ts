@@ -36,14 +36,9 @@ export function useLogin() {
         if (res.status === 401) throw new Error("Invalid credentials");
         throw new Error("Login failed");
       }
-      const responseData = await res.json();
-      if (responseData.token) {
-        localStorage.setItem("token", responseData.token);
-      }
-      return api.auth.login.responses[200].parse(responseData);
+      return await res.json();
     },
-    onSuccess: (responseData: any) => {
-      const user = responseData.user || responseData;
+    onSuccess: (user: any) => {
       queryClient.setQueryData([api.auth.me.path], user);
       toast({ title: "Welcome back", description: "Successfully logged in." });
       // Redirect based on email domain or property (simple mock admin check)
@@ -80,11 +75,7 @@ export function useRegister() {
         }
         throw new Error("Registration failed");
       }
-      const responseData = await res.json();
-      if (responseData.token) {
-        localStorage.setItem("token", responseData.token);
-      }
-      return api.auth.register.responses[201].parse(responseData);
+      return await res.json();
     },
     onSuccess: (responseData: any) => {
       const user = responseData.user || responseData;

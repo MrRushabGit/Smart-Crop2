@@ -99,25 +99,23 @@ export async function registerRoutes(
     }
   });
 
-  app.post(api.auth.login.path, async (req, res) => {
-    try {
-      const { email } = req.body;
-      
-      // Bypass strict passport auth for dev mode
-      res.status(200).json({
-        success: true,
-        message: "Login successful",
-        user: { email },
-        token: "dummy-token"
+  app.post(api.auth.login.path, (req, res, next) => {
+    passport.authenticate('local', (err: any, user: any) => {
+      if (err) {
+        console.error("Login error:", err);
+        return res.status(500).json({ message: "Login failed" });
+      }
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          console.error("Session error:", loginErr);
+          return res.status(500).json({ message: "Session creation failed" });
+        }
+        res.status(200).json(user);
       });
-    } catch (err) {
-      res.status(200).json({
-        success: true,
-        message: "Login successful",
-        user: { email: req.body?.email },
-        token: "dummy-token"
-      });
-    }
+    })(req, res, next);
   });
 
   app.post(api.auth.logout.path, (req, res) => {
@@ -136,11 +134,7 @@ export async function registerRoutes(
 
   // Prediction Routes
   app.get(api.predictions.list.path, async (req, res) => {
-    console.log("Auth header (list):", req.headers.authorization);
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
-
-    if (!req.isAuthenticated() && (!token || token !== "dummy-token")) {
+    if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Unauthorized" });
     }
     const predictions = await storage.getUserPredictions((req.user as any).id);
@@ -148,12 +142,8 @@ export async function registerRoutes(
   });
 
   app.post(api.predictions.create.path, async (req, res) => {
-    console.log("Auth header:", req.headers.authorization);
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
-
-    if (!req.isAuthenticated() && (!token || token !== "dummy-token")) {
-      return res.status(401).json({ error: "Unauthorized" });
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Unauthorized" });
     }
     try {
       const input = api.predictions.create.input.parse(req.body);
