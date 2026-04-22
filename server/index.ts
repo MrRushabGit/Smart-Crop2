@@ -12,6 +12,10 @@ app.use(cors({
   credentials: true
 }));
 
+app.get("/", (req, res) => {
+  res.send("Backend is running 🚀");
+});
+
 declare module "http" {
   interface IncomingMessage {
     rawBody: unknown;
@@ -88,10 +92,10 @@ app.use((req, res, next) => {
   // Other ports are firewalled. Default to 5000 if not specified.
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = process.env.PORT || 10000;
+  const PORT = process.env.PORT || 3000;
   
 
-  httpServer.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+  httpServer.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
   });
 })();
