@@ -1,5 +1,37 @@
 import { z } from 'zod';
-import { insertUserSchema, insertPredictionSchema, users, predictions } from './schema';
+export type User = {
+  id: number;
+  name: string;
+  email: string;
+  signupDate: Date;
+};
+
+export type Prediction = {
+  id: number;
+  userId: number;
+  inputValues: unknown;
+  recommendedCrop: string;
+  diseasePrediction: string;
+  confidenceScore: number;
+  metrics: unknown;
+  timestamp: Date;
+};
+
+export const insertUserSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export const insertPredictionSchema = z.object({
+  farmArea: z.number().positive(),
+  irrigationType: z.string(),
+  fertilizerUsed: z.number().nonnegative(),
+  pesticideUsed: z.number().nonnegative(),
+  soilType: z.string(),
+  season: z.string(),
+  waterUsage: z.number().positive(),
+});
 
 export const errorSchemas = {
   validation: z.object({
@@ -23,7 +55,7 @@ export const api = {
       method: 'GET' as const,
       path: '/api/user' as const,
       responses: {
-        200: z.custom<typeof users.$inferSelect>(),
+        200: z.custom<User>(),
         401: errorSchemas.unauthorized,
       },
     },
@@ -32,7 +64,7 @@ export const api = {
       path: '/api/register' as const,
       input: insertUserSchema,
       responses: {
-        201: z.custom<typeof users.$inferSelect>(),
+        201: z.custom<User>(),
         400: errorSchemas.validation,
       },
     },
@@ -41,7 +73,7 @@ export const api = {
       path: '/api/login' as const,
       input: z.object({ email: z.string().email(), password: z.string() }),
       responses: {
-        200: z.custom<typeof users.$inferSelect>(),
+        200: z.custom<User>(),
         401: errorSchemas.unauthorized,
       },
     },
@@ -58,7 +90,7 @@ export const api = {
       method: 'GET' as const,
       path: '/api/predictions' as const,
       responses: {
-        200: z.array(z.custom<typeof predictions.$inferSelect>()),
+        200: z.array(z.custom<Prediction>()),
         401: errorSchemas.unauthorized,
       },
     },
@@ -75,7 +107,7 @@ export const api = {
         waterUsage: z.number(),
       }),
       responses: {
-        201: z.custom<typeof predictions.$inferSelect>(),
+        201: z.custom<Prediction>(),
         400: errorSchemas.validation,
         401: errorSchemas.unauthorized,
         500: errorSchemas.internal,
@@ -92,7 +124,7 @@ export const api = {
           totalPredictions: z.number(),
           mostPredictedCrops: z.array(z.object({ crop: z.string(), count: z.number() })),
           accuracyTrends: z.array(z.object({ date: z.string(), averageAccuracy: z.number() })),
-          recentActivity: z.array(z.custom<typeof predictions.$inferSelect>()),
+          recentActivity: z.array(z.custom<Prediction>()),
         }),
         401: errorSchemas.unauthorized,
       }
