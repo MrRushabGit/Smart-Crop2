@@ -36,13 +36,14 @@ export function useLogin() {
         if (res.status === 401) throw new Error("Invalid credentials");
         throw new Error("Login failed");
       }
-      return api.auth.login.responses[200].parse(await res.json());
-    },
-    onSuccess: (responseData: any) => {
-      const user = responseData.user || responseData;
+      const responseData = await res.json();
       if (responseData.token) {
         localStorage.setItem("token", responseData.token);
       }
+      return api.auth.login.responses[200].parse(responseData);
+    },
+    onSuccess: (responseData: any) => {
+      const user = responseData.user || responseData;
       queryClient.setQueryData([api.auth.me.path], user);
       toast({ title: "Welcome back", description: "Successfully logged in." });
       // Redirect based on email domain or property (simple mock admin check)
@@ -79,9 +80,14 @@ export function useRegister() {
         }
         throw new Error("Registration failed");
       }
-      return api.auth.register.responses[201].parse(await res.json());
+      const responseData = await res.json();
+      if (responseData.token) {
+        localStorage.setItem("token", responseData.token);
+      }
+      return api.auth.register.responses[201].parse(responseData);
     },
-    onSuccess: (user) => {
+    onSuccess: (responseData: any) => {
+      const user = responseData.user || responseData;
       queryClient.setQueryData([api.auth.me.path], user);
       toast({ title: "Account created", description: "Welcome to AgriNova!" });
       setLocation("/dashboard");
