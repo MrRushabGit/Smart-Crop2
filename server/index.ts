@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { createServer } from "http";
-import * as cors from "cors";
+import cors from "cors";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -70,32 +70,37 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  await registerRoutes(httpServer, app);
+  try {
+    await registerRoutes(httpServer, app);
 
-  app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
+      const status = err.status || err.statusCode || 500;
+      const message = err.message || "Internal Server Error";
 
-    console.error("Internal Server Error:", err);
+      console.error("Internal Server Error:", err);
 
-    if (res.headersSent) {
-      return next(err);
-    }
+      if (res.headersSent) {
+        return next(err);
+      }
 
-    return res.status(status).json({ message });
-  });
+      return res.status(status).json({ message });
+    });
 
-  // The backend now functions purely as an API server.
-  // Frontend routing and building is fully decoupled and managed externally (e.g. Vercel).
+    // The backend now functions purely as an API server.
+    // Frontend routing and building is fully decoupled and managed externally (e.g. Vercel).
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const PORT = process.env.PORT || 3000;
-  
+    // ALWAYS serve the app on the port specified in the environment variable PORT
+    // Other ports are firewalled. Default to 5000 if not specified.
+    // this serves both the API and the client.
+    // It is the only port that is not firewalled.
+    const PORT = process.env.PORT || 3000;
+    
 
-  httpServer.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+    httpServer.listen(Number(PORT), "0.0.0.0", () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("Fatal error during server startup:", error);
+    process.exit(1);
+  }
 })();
