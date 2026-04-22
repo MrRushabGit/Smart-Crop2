@@ -4,15 +4,28 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem("token");
+  if (token) {
+    return { "Authorization": `Bearer ${token}` };
+  }
+  return {};
+}
+
 export function useUser() {
   return useQuery({
     queryKey: [api.auth.me.path],
     queryFn: async () => {
       const API_BASE = import.meta.env.VITE_API_URL || "";
-      const res = await fetch(`${API_BASE}${api.auth.me.path}`, { credentials: "include" });
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+
+      const res = await fetch(`${API_BASE}${api.auth.me.path}`, {
+        headers: { ...getAuthHeaders() },
+      });
       if (res.status === 401) return null;
       if (!res.ok) throw new Error("Failed to fetch user");
-      return api.auth.me.responses[200].parse(await res.json());
+      return await res.json();
     },
     staleTime: Infinity,
   });
@@ -30,7 +43,6 @@ export function useLogin() {
         method: api.auth.login.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-        credentials: "include",
       });
       if (!res.ok) {
         if (res.status === 401) throw new Error("Invalid credentials");
@@ -38,7 +50,12 @@ export function useLogin() {
       }
       return await res.json();
     },
-    onSuccess: (user: any) => {
+    onSuccess: (responseData: any) => {
+      // Store JWT token
+      if (responseData.token) {
+        localStorage.setItem("token", responseData.token);
+      }
+      const user = responseData.user || responseData;
       queryClient.setQueryData([api.auth.me.path], user);
       toast({ title: "Welcome back", description: "Successfully logged in." });
       // Redirect based on email domain or property (simple mock admin check)
@@ -66,7 +83,6 @@ export function useRegister() {
         method: api.auth.register.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-        credentials: "include",
       });
       if (!res.ok) {
         if (res.status === 400) {
@@ -78,6 +94,10 @@ export function useRegister() {
       return await res.json();
     },
     onSuccess: (responseData: any) => {
+      // Store JWT token
+      if (responseData.token) {
+        localStorage.setItem("token", responseData.token);
+      }
       const user = responseData.user || responseData;
       queryClient.setQueryData([api.auth.me.path], user);
       toast({ title: "Account created", description: "Welcome to AgriNova!" });
@@ -97,11 +117,12 @@ export function useLogout() {
   return useMutation({
     mutationFn: async () => {
       const API_BASE = import.meta.env.VITE_API_URL || "";
-      const res = await fetch(`${API_BASE}${api.auth.logout.path}`, {
+      await fetch(`${API_BASE}${api.auth.logout.path}`, {
         method: api.auth.logout.method,
-        credentials: "include",
+        headers: { ...getAuthHeaders() },
       });
-      if (!res.ok) throw new Error("Logout failed");
+      // Remove token client-side
+      localStorage.removeItem("token");
     },
     onSuccess: () => {
       queryClient.setQueryData([api.auth.me.path], null);
@@ -110,3 +131,4 @@ export function useLogout() {
     },
   });
 }
+

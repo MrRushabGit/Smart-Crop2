@@ -3,16 +3,24 @@ import { api } from "@shared/routes";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem("token");
+  if (token) {
+    return { "Authorization": `Bearer ${token}` };
+  }
+  return {};
+}
+
 export function usePredictions() {
   return useQuery({
     queryKey: [api.predictions.list.path],
     queryFn: async () => {
       const API_BASE = import.meta.env.VITE_API_URL || "";
       const res = await fetch(`${API_BASE}${api.predictions.list.path}`, { 
-        credentials: "include",
+        headers: { ...getAuthHeaders() },
       });
       if (!res.ok) throw new Error("Failed to fetch predictions");
-      return api.predictions.list.responses[200].parse(await res.json());
+      return await res.json();
     },
   });
 }
@@ -26,9 +34,11 @@ export function useCreatePrediction() {
       const API_BASE = import.meta.env.VITE_API_URL || "";
       const res = await fetch(`${API_BASE}${api.predictions.create.path}`, {
         method: api.predictions.create.method,
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...getAuthHeaders(),
+        },
         body: JSON.stringify(data),
-        credentials: "include",
       });
       
       const responseData = await res.json().catch(() => null);
@@ -39,7 +49,7 @@ export function useCreatePrediction() {
       
       // Handle the { success: true, data: ... } wrapper format
       const resultData = responseData.data ? responseData.data : responseData;
-      return api.predictions.create.responses[201].parse(resultData);
+      return resultData;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [api.predictions.list.path] });
@@ -50,3 +60,4 @@ export function useCreatePrediction() {
     },
   });
 }
+
