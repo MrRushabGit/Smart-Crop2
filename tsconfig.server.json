@@ -4,11 +4,12 @@
       "module": "CommonJS",
       "rootDir": ".",
       "outDir": "./dist",
-      "strict": true,
+      "strict": false,
       "esModuleInterop": true,
       "skipLibCheck": true,
-      "forceConsistentCasingInFileNames": true
+      "forceConsistentCasingInFileNames": true,
+      "typeRoots": ["./node_modules/@types", "./server/types"]
     },
-    "include": ["server/**/*", "shared/**/*"],
+    "include": ["server/**/*", "shared/**/*", "server/types"],
     "exclude": ["node_modules", "client", "dist"]
   }

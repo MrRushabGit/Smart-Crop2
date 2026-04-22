@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { createServer } from "http";
-import cors from "cors";
+import * as cors from "cors";
 
 const app = express();
 app.set("trust proxy", 1);

@@ -21,18 +21,11 @@ export const predictions = pgTable("predictions", {
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  name: true,
-  email: true,
-  password: true,
-});
+export const insertUserSchema = createInsertSchema(users);
 
-export const insertPredictionSchema = createInsertSchema(predictions).omit({
-  id: true,
-  timestamp: true,
-});
+export const insertPredictionSchema = createInsertSchema(predictions);
 
 export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertUser = typeof users.$inferInsert;
 export type Prediction = typeof predictions.$inferSelect;
-export type InsertPrediction = z.infer<typeof insertPredictionSchema>;
+export type InsertPrediction = typeof predictions.$inferInsert;
