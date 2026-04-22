@@ -1,9 +1,16 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { createServer } from "http";
+import cors from "cors";
 
 const app = express();
+app.set("trust proxy", 1);
 const httpServer = createServer(app);
+
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 
 declare module "http" {
   interface IncomingMessage {

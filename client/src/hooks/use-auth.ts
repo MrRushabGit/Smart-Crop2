@@ -8,7 +8,8 @@ export function useUser() {
   return useQuery({
     queryKey: [api.auth.me.path],
     queryFn: async () => {
-      const res = await fetch(api.auth.me.path, { credentials: "include" });
+      const API_BASE = import.meta.env.VITE_API_URL || "";
+      const res = await fetch(`${API_BASE}${api.auth.me.path}`, { credentials: "include" });
       if (res.status === 401) return null;
       if (!res.ok) throw new Error("Failed to fetch user");
       return api.auth.me.responses[200].parse(await res.json());
@@ -24,7 +25,8 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: async (data: z.infer<typeof api.auth.login.input>) => {
-      const res = await fetch(api.auth.login.path, {
+      const API_BASE = import.meta.env.VITE_API_URL || "";
+      const res = await fetch(`${API_BASE}${api.auth.login.path}`, {
         method: api.auth.login.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -59,7 +61,8 @@ export function useRegister() {
 
   return useMutation({
     mutationFn: async (data: z.infer<typeof api.auth.register.input>) => {
-      const res = await fetch(api.auth.register.path, {
+      const API_BASE = import.meta.env.VITE_API_URL || "";
+      const res = await fetch(`${API_BASE}${api.auth.register.path}`, {
         method: api.auth.register.method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -92,7 +95,8 @@ export function useLogout() {
 
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch(api.auth.logout.path, {
+      const API_BASE = import.meta.env.VITE_API_URL || "";
+      const res = await fetch(`${API_BASE}${api.auth.logout.path}`, {
         method: api.auth.logout.method,
         credentials: "include",
       });
