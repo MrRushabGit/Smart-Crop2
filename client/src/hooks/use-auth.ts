@@ -38,7 +38,11 @@ export function useLogin() {
       }
       return api.auth.login.responses[200].parse(await res.json());
     },
-    onSuccess: (user) => {
+    onSuccess: (responseData: any) => {
+      const user = responseData.user || responseData;
+      if (responseData.token) {
+        localStorage.setItem("token", responseData.token);
+      }
       queryClient.setQueryData([api.auth.me.path], user);
       toast({ title: "Welcome back", description: "Successfully logged in." });
       // Redirect based on email domain or property (simple mock admin check)

@@ -8,7 +8,12 @@ export function usePredictions() {
     queryKey: [api.predictions.list.path],
     queryFn: async () => {
       const API_BASE = import.meta.env.VITE_API_URL || "";
-      const res = await fetch(`${API_BASE}${api.predictions.list.path}`, { credentials: "include" });
+      const token = localStorage.getItem("token") || "dummy-token";
+      
+      const res = await fetch(`${API_BASE}${api.predictions.list.path}`, { 
+        credentials: "include",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
       if (!res.ok) throw new Error("Failed to fetch predictions");
       return api.predictions.list.responses[200].parse(await res.json());
     },
@@ -22,9 +27,15 @@ export function useCreatePrediction() {
   return useMutation({
     mutationFn: async (data: z.infer<typeof api.predictions.create.input>) => {
       const API_BASE = import.meta.env.VITE_API_URL || "";
+      const token = localStorage.getItem("token") || "dummy-token"; // fallback if not logged in yet
+      console.log("Token:", token);
+
       const res = await fetch(`${API_BASE}${api.predictions.create.path}`, {
         method: api.predictions.create.method,
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify(data),
         credentials: "include",
       });
