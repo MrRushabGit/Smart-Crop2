@@ -176,20 +176,14 @@ export async function registerRoutes(
       pythonProcess.on('close', async (code) => {
         try {
           if (code !== 0) {
-            console.error("Python script failed:", errorOutput);
-            // Provide a fallback prediction so the UI still works when Python isn't available
-            const prediction = await storage.createPrediction({
-              userId: (req as any).user.id,
-              inputValues: input,
-              recommendedCrop: "Wheat",
-              diseasePrediction: "None",
-              confidenceScore: 0.95,
-              metrics: { accuracy: 0.92, precision: 0.91, recall: 0.89, f1Score: 0.90 }
-            });
-            return res.status(201).json({ success: true, data: prediction });
+            console.error("Python script failed with code:", code);
+            console.error("Python stderr:", errorOutput);
+            console.error("Python stdout:", output);
+            return res.status(500).json({ error: "ML prediction failed. Check server logs for details.", details: errorOutput });
           }
 
           const mlResult = JSON.parse(output.trim());
+          console.log("ML RESULT:", JSON.stringify(mlResult));
           const prediction = await storage.createPrediction({
             userId: (req as any).user.id,
             inputValues: input,
