@@ -8,8 +8,7 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import { spawn } from "child_process";
-import path from "path";
+import { predict } from "./ml";
 
 // Simple hash function for passwords
 const hashPassword = (password: string) => {
@@ -155,56 +154,28 @@ export async function registerRoutes(
   app.post(api.predictions.create.path, jwtAuth, async (req, res) => {
     try {
       const input = api.predictions.create.input.parse(req.body);
-      
-      // Call Python Script for ML Prediction
-      const pythonProcess = spawn('python3', [
-        path.join(process.cwd(), 'server', 'ml.py'),
-        JSON.stringify(input)
-      ]);
+      console.log("RAW INPUT:", JSON.stringify(req.body));
 
-      let output = '';
-      let errorOutput = '';
+      // Run ML prediction (pure TypeScript — no Python dependency)
+      const mlResult = predict(input);
+      console.log("ML RESULT:", JSON.stringify(mlResult));
 
-      pythonProcess.stdout.on('data', (data) => {
-        output += data.toString();
+      const prediction = await storage.createPrediction({
+        userId: (req as any).user.id,
+        inputValues: input,
+        recommendedCrop: mlResult.recommendedCrop,
+        diseasePrediction: mlResult.diseasePrediction,
+        confidenceScore: mlResult.confidenceScore,
+        metrics: mlResult.metrics
       });
 
-      pythonProcess.stderr.on('data', (data) => {
-        errorOutput += data.toString();
-      });
-
-      pythonProcess.on('close', async (code) => {
-        try {
-          if (code !== 0) {
-            console.error("Python script failed with code:", code);
-            console.error("Python stderr:", errorOutput);
-            console.error("Python stdout:", output);
-            return res.status(500).json({ error: "ML prediction failed. Check server logs for details.", details: errorOutput });
-          }
-
-          const mlResult = JSON.parse(output.trim());
-          console.log("ML RESULT:", JSON.stringify(mlResult));
-          const prediction = await storage.createPrediction({
-            userId: (req as any).user.id,
-            inputValues: input,
-            recommendedCrop: mlResult.recommendedCrop,
-            diseasePrediction: mlResult.diseasePrediction,
-            confidenceScore: mlResult.confidenceScore,
-            metrics: mlResult.metrics
-          });
-          res.status(201).json({ success: true, data: prediction });
-        } catch (e) {
-          console.error("Failed to parse Python output:", output, e);
-          res.status(500).json({ error: "Invalid output from model" });
-        }
-      });
-
-    } catch (err) {
-      console.error("Prediction error:", err);
+      res.status(201).json({ success: true, data: prediction });
+    } catch (err: any) {
+      console.error("❌ ML ERROR:", err);
       if (err instanceof z.ZodError) {
         return res.status(400).json({ error: err.errors[0].message, field: err.errors[0].path.join('.') });
       }
-      res.status(500).json({ error: "Prediction failed" });
+      res.status(500).json({ error: "ML prediction failed", details: err.message });
     }
   });
 
